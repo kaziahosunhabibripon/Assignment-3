@@ -1,39 +1,28 @@
+import bcrypt from "bcrypt";
 import { model, Schema } from "mongoose";
-import { IUser, TUserName } from "./user.interface";
-
-const userNameSchema = new Schema<TUserName>({
-  firstName: {
-    type: String,
-    required: [true, "First Name is required"],
-    trim: true,
-    minlength: [3, "Name must be greater than 3 characters"],
-    maxlength: [25, "Name must be less than 25 characters"],
-  },
-  middleName: {
-    type: String,
-    trim: true,
-    minlength: [3, "Name must be greater than 3 characters"],
-    maxlength: [25, "Name must be less than 25 characters"],
-  },
-  lastName: {
-    type: String,
-    required: [true, "First Name is required"],
-    trim: true,
-    minlength: [3, "Name must be greater than 3 characters"],
-    maxlength: [25, "Name must be less than 25 characters"],
-  },
-});
+import config from "../../config";
+import { IUser, UserModel } from "./user.interface";
 const userSchema = new Schema<IUser>(
   {
-    name: userNameSchema,
-    email: {
+    name: {
       type: String,
       required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
       required: true,
+      trim: true,
+      select: 0,
     },
+
     phone: {
       type: String,
       required: true,
@@ -53,5 +42,20 @@ const userSchema = new Schema<IUser>(
     timestamps: true,
   }
 );
+userSchema.pre("save", async function (next) {
+  const user = this;
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcryptSaltRounds)
+  );
+  next();
+});
+userSchema.methods.toJSON = function () {
+  const { password, ...userWithoutPassword } = this.toObject();
+  return userWithoutPassword;
+};
 
-export const User = model<IUser>("User", userSchema);
+userSchema.statics.isUserExistByEmail = async function (email) {
+  return await User.findOne({ email }).select("+password");
+};
+export const User = model<IUser, UserModel>("User", userSchema);

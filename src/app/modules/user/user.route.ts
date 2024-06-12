@@ -1,9 +1,6 @@
 import express from "express";
+import { UserControllers } from "./user.controller";
 const router = express.Router();
-router.get("/user", (req, res) => {
-  res.json({
-    message: "Welcome to User Routes",
-  });
-});
+router.post("/signup", UserControllers.createUser);
 
 export const UserRoutes = router;
