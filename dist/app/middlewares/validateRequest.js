@@ -8,13 +8,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserServices = void 0;
-const user_model_1 = require("./user.model");
-const createUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.create(payload);
-    return result;
-});
-exports.UserServices = {
-    createUserIntoDB,
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+const catchAsync_1 = __importDefault(require("../modules/utils/catchAsync"));
+const validateRequest = (schema) => {
+    return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        yield schema.parseAsync({
+            body: req.body,
+            query: req.query,
+            params: req.params,
+            headers: req.headers,
+            cookies: req.cookies,
+        });
+        next();
+    }));
+};
+exports.default = validateRequest;

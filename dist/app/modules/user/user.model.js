@@ -8,13 +8,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
-const mongoose_1 = require("mongoose");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const mongoose_1 = require("mongoose");
 const config_1 = __importDefault(require("../../config"));
 const userSchema = new mongoose_1.Schema({
     name: {
@@ -24,19 +35,16 @@ const userSchema = new mongoose_1.Schema({
     },
     email: {
         type: String,
+        unique: true,
         required: true,
+        lowercase: true,
+        trim: true,
     },
     password: {
         type: String,
         required: true,
         trim: true,
-        // select: false,
-    },
-    needPasswordChange: {
-        type: Boolean,
-        default: true,
-        trim: true,
-        // select: 0,
+        select: 0,
     },
     phone: {
         type: String,
@@ -58,11 +66,17 @@ const userSchema = new mongoose_1.Schema({
 userSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = this;
-        user.password = yield bcrypt_1.default.hash(this.password, Number(config_1.default.bcryptSaltRounds));
+        user.password = yield bcrypt_1.default.hash(user.password, Number(config_1.default.bcryptSaltRounds));
         next();
     });
 });
-userSchema.post("save", function (doc, next) {
-    (doc.password = ""), next();
-});
+userSchema.methods.toJSON = function () {
+    const _a = this.toObject(), { password } = _a, userWithoutPassword = __rest(_a, ["password"]);
+    return userWithoutPassword;
+};
+userSchema.statics.isUserExistByEmail = function (email) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield exports.User.findOne({ email }).select("+password");
+    });
+};
 exports.User = (0, mongoose_1.model)("User", userSchema);
