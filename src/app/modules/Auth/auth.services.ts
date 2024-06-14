@@ -20,8 +20,9 @@ const loginUser = async (payload: TLoginUser) => {
     throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
   }
 
-  if (!(await User.isUserPasswordMatched(payload?.password, user?.password)))
+  if (!(await User.isUserPasswordMatched(payload?.password, user?.password))) {
     throw new AppError(httpStatus.FORBIDDEN, "Password do not matched");
+  }
 
   const jwtPayload = {
     userEmail: user.email,
@@ -30,9 +31,9 @@ const loginUser = async (payload: TLoginUser) => {
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_token as string, {
     expiresIn: config.jwt_access_expires_in as string,
   });
-
+  const token: string = `Bearer ${accessToken}`;
   return {
-    accessToken,
+    accessToken: token,
     loggedInUser,
   };
 };

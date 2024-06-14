@@ -11,10 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserServices = void 0;
 const user_model_1 = require("./user.model");
-const createUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_model_1.User.create(payload);
+const getAllUserFromDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_model_1.User.find();
     return result;
 });
 exports.UserServices = {
-    createUserIntoDB,
+    getAllUserFromDB,
 };

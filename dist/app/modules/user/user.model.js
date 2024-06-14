@@ -74,9 +74,15 @@ userSchema.methods.toJSON = function () {
     const _a = this.toObject(), { password } = _a, userWithoutPassword = __rest(_a, ["password"]);
     return userWithoutPassword;
 };
+// password verification for login User
 userSchema.statics.isUserExistByEmail = function (email) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield exports.User.findOne({ email }).select("+password");
+    });
+};
+userSchema.statics.isUserPasswordMatched = function (givenPassword, hashedPassword) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield bcrypt_1.default.compare(givenPassword, hashedPassword);
     });
 };
 exports.User = (0, mongoose_1.model)("User", userSchema);

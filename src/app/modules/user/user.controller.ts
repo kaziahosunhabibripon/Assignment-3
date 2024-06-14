@@ -4,27 +4,17 @@ import sendResponse from "../utils/sendResponse";
 import { UserServices } from "./user.service";
 import { User } from "./user.model";
 
-const createUser = catchAsync(async (req, res) => {
-  const { email } = req.body;
-  const isUserExist = await User.isUserExistByEmail(email);
+const getAllUser = catchAsync(async (req, res) => {
+  const result = await UserServices.getAllUserFromDB(req.body);
 
-  if (isUserExist) {
-    return sendResponse(res, {
-      success: false,
-      statusCode: httpStatus.BAD_REQUEST,
-      message: "User already exist",
-      data: null,
-    });
-  }
-  const result = await UserServices.createUserIntoDB(req.body);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "User registered successfully",
+    message: "All Users retrieved successfully",
     data: result,
   });
 });
 
 export const UserControllers = {
-  createUser,
+  getAllUser,
 };

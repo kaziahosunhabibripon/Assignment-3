@@ -8,12 +8,13 @@ import config from "../config";
 import { User } from "../modules/user/user.model";
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+    const accessToken = req.headers.authorization;
 
-    if (!token) {
+    if (!accessToken) {
       throw new AppError(httpStatus.UNAUTHORIZED, "You are not Unauthorized!");
     }
-
+    // const token = accessToken.split(" ")[1];
+    const token = accessToken;
     const decoded = jwt.verify(
       token.replace(/^Bearer\s+/, ""),
       config.jwt_access_token as string
