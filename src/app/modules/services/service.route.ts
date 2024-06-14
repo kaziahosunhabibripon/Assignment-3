@@ -32,4 +32,11 @@ router.put(
 );
 router.delete("/:id", auth(USER_ROLE.admin), ServiceControllers.deleteService);
 
+
+router.post(
+  "/slots",
+  auth(USER_ROLE.admin),
+  validateRequest(ServiceValidations.createServiceValidationSchema),
+  ServiceControllers.creteService
+);
 export const ServiceRoutes = router;

@@ -2,6 +2,7 @@ import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { TService } from "./service.interface";
 import { Service } from "./service.model";
+import mongoose from "mongoose";
 
 const createServiceIntoDB = async (payload: TService) => {
   const newService = await Service.create(payload);
@@ -20,27 +21,43 @@ const updateSingleServicesIntoDB = async (
   id: string,
   payload: Partial<TService>
 ) => {
-  const isServiceExistsById = await Service.findById(id);
-  if (!isServiceExistsById) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      "Service is not found in the database"
-    );
-  }
-  const isDeleted = isServiceExistsById?.isDeleted;
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  if (isDeleted) {
-    throw new AppError(
-      httpStatus.FORBIDDEN,
-      "Service is deleted, from the database !"
-    );
-  }
-  const result = await Service.findByIdAndUpdate(id, payload, {
-    new: true,
-    runValidators: true,
-  });
+  try {
+    const isServiceExistsById = await Service.findById(id).session(session);
 
-  return result;
+    if (!isServiceExistsById) {
+      throw new AppError(
+        httpStatus.NOT_FOUND,
+        "Service is not found in the database"
+      );
+    }
+
+    const isDeleted = isServiceExistsById.isDeleted;
+
+    if (isDeleted) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "Service is deleted from the database"
+      );
+    }
+
+    const result = await Service.findByIdAndUpdate(id, payload, {
+      new: true,
+      runValidators: true,
+      session: session,
+    });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return result;
+  } catch (error: any) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
 };
 
 const deleteServiceFromDB = async (id: string) => {

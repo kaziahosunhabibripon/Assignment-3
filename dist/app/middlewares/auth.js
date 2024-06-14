@@ -20,10 +20,12 @@ const config_1 = __importDefault(require("../config"));
 const user_model_1 = require("../modules/user/user.model");
 const auth = (...requiredRoles) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-        const token = req.headers.authorization;
-        if (!token) {
+        const accessToken = req.headers.authorization;
+        if (!accessToken) {
             throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not Unauthorized!");
         }
+        // const token = accessToken.split(" ")[1];
+        const token = accessToken;
         const decoded = jsonwebtoken_1.default.verify(token.replace(/^Bearer\s+/, ""), config_1.default.jwt_access_token);
         const { role, userEmail } = decoded;
         const user = yield user_model_1.User.isUserExistByEmail(userEmail);
