@@ -50,12 +50,22 @@ userSchema.pre("save", async function (next) {
   );
   next();
 });
+
+
 userSchema.methods.toJSON = function () {
   const { password, ...userWithoutPassword } = this.toObject();
   return userWithoutPassword;
 };
 
+// password verification for login User
+
 userSchema.statics.isUserExistByEmail = async function (email) {
   return await User.findOne({ email }).select("+password");
+};
+userSchema.statics.isUserPasswordMatched = async function (
+  givenPassword,
+  hashedPassword
+) {
+  return await bcrypt.compare(givenPassword, hashedPassword);
 };
 export const User = model<IUser, UserModel>("User", userSchema);
