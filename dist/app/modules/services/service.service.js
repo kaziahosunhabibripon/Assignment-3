@@ -22,7 +22,7 @@ const createServiceIntoDB = (payload) => __awaiter(void 0, void 0, void 0, funct
     return newService;
 });
 const getAllServicesFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield service_model_1.Service.find({ isDeleted: false });
+    const result = yield service_model_1.Service.find({});
     return result;
 });
 const getSingleServicesFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -30,7 +30,9 @@ const getSingleServicesFromDB = (id) => __awaiter(void 0, void 0, void 0, functi
     return result;
 });
 const updateSingleServicesIntoDB = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    // start session
     const session = yield mongoose_1.default.startSession();
+    // start Transaction
     session.startTransaction();
     try {
         const isServiceExistsById = yield service_model_1.Service.findById(id).session(session);
@@ -47,12 +49,12 @@ const updateSingleServicesIntoDB = (id, payload) => __awaiter(void 0, void 0, vo
             session: session,
         });
         yield session.commitTransaction();
-        session.endSession();
+        yield session.endSession();
         return result;
     }
     catch (error) {
         yield session.abortTransaction();
-        session.endSession();
+        yield session.endSession();
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, error.message);
     }
 });

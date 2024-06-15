@@ -28,11 +28,11 @@ const serviceSchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
 });
-serviceSchema.pre("save", function (next) {
-    const service = this;
-    if (service.isModified("name")) {
-        service.name = service.name.toLowerCase();
-    }
-    next();
-});
+// serviceSchema.pre("save", function (next) {
+//   const service = this;
+//   if (service.isModified("name")) {
+//     service.name = service.name.toLowerCase();
+//   }
+//   next();
+// });
 exports.Service = (0, mongoose_1.model)("Service", serviceSchema);

@@ -4,8 +4,11 @@ import { Slot } from "./slots.model";
 import { Service } from "../services/service.model";
 import httpStatus from "http-status";
 import { minutesToTime, timeToMinutes } from "./slots.utils";
+import QueryBuilder from "../../builder/QueryBuilder";
+import { BOOKING_SLOT } from "./slots.constants";
+import { AnyObject } from "mongoose";
 
-export const createSlotsIntoDB = async (payload: TSlots) => {
+const createSlotsIntoDB = async (payload: TSlots) => {
   const { service, startTime, endTime, ...restSlotProps } = payload || {};
   const isExistService = await Service.findById(service);
 
@@ -52,7 +55,19 @@ export const createSlotsIntoDB = async (payload: TSlots) => {
     return slots;
   }
 };
-const SlotServices = {
-  createSlotsIntoDB,
+
+const getAllSlotsFromDB = async (query: Record<string, any>) => {
+  const findQuery = Slot.find({
+    isBooked: BOOKING_SLOT.available,
+  }).populate("service");
+
+  const queryBuilder = new QueryBuilder<TSlots>(findQuery, query).filter();
+  const result = (await queryBuilder.modelQuery.exec()) as TSlots[];
+
+  return result;
 };
-export default SlotServices;
+export const SlotServices = {
+  createSlotsIntoDB,
+  getAllSlotsFromDB,
+};
+ 
