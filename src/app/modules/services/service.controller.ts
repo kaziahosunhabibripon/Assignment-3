@@ -15,6 +15,7 @@ const creteService = catchAsync(async (req, res) => {
 });
 
 const getAllServices = catchAsync(async (req, res) => {
+
   const result = await ServiceServices.getAllServicesFromDB();
 
   const isSuccess = result.length > 0;

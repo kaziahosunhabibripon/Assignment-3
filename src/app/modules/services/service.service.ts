@@ -9,19 +9,20 @@ const createServiceIntoDB = async (payload: TService) => {
   return newService;
 };
 const getAllServicesFromDB = async () => {
-  const result = await Service.find({ isDeleted: false });
+  const result = await Service.find({});
   return result;
 };
 const getSingleServicesFromDB = async (id: string) => {
   const result = await Service.findById(id);
-
   return result;
 };
 const updateSingleServicesIntoDB = async (
   id: string,
   payload: Partial<TService>
 ) => {
+  // start session
   const session = await mongoose.startSession();
+  // start Transaction
   session.startTransaction();
 
   try {
@@ -50,15 +51,15 @@ const updateSingleServicesIntoDB = async (
     });
 
     await session.commitTransaction();
-    session.endSession();
-
+    await session.endSession();
     return result;
   } catch (error: any) {
     await session.abortTransaction();
-    session.endSession();
+    await session.endSession();
     throw new AppError(httpStatus.BAD_REQUEST, error.message);
   }
 };
+
 
 const deleteServiceFromDB = async (id: string) => {
   const result = await Service.findByIdAndUpdate(

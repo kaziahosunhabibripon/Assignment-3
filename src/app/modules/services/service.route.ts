@@ -1,9 +1,11 @@
+import { SlotControllers } from "./../slots/slots.controller";
 import express from "express";
 import validateRequest from "../../middlewares/validateRequest";
 import { ServiceValidations } from "./service.validation";
 import { ServiceControllers } from "./service.controller";
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../user/user.constants";
+import { SlotValidations } from "../slots/slots.validation";
 
 const router = express.Router();
 
@@ -32,11 +34,10 @@ router.put(
 );
 router.delete("/:id", auth(USER_ROLE.admin), ServiceControllers.deleteService);
 
-
 router.post(
   "/slots",
   auth(USER_ROLE.admin),
-  validateRequest(ServiceValidations.createServiceValidationSchema),
-  ServiceControllers.creteService
+  validateRequest(SlotValidations.createSlotValidationSchema),
+  SlotControllers.createSlot
 );
 export const ServiceRoutes = router;
