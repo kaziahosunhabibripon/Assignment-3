@@ -4,10 +4,8 @@ import { Slot } from "./slots.model";
 import { Service } from "../services/service.model";
 import httpStatus from "http-status";
 import { minutesToTime, timeToMinutes } from "./slots.utils";
-
-import { AnyObject } from "mongoose";
 import { BOOKING_SLOT } from "./slots.constants";
-import QueryBuilder, { TSlotsQuery } from "../../builder/QueryBuilder";
+import { TSlotsQuery } from "../../builder/QueryBuilder";
 
 const createSlotsIntoDB = async (payload: TSlots) => {
   const { service, startTime, endTime, ...restSlotProps } = payload || {};

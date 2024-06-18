@@ -27,9 +27,8 @@ const createSlot = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const getAllSlots = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = req.query;
-    const result = yield slots_service_1.SlotServices.getAllSlotsFromDB(query);
-    return (0, sendResponse_1.default)(res, result.length > 0
+    const result = yield slots_service_1.SlotServices.getAllSlotsFromDB(req.query);
+    (0, sendResponse_1.default)(res, result.length > 0
         ? {
             success: true,
             statusCode: http_status_1.default.OK,

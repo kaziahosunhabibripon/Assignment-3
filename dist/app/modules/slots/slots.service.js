@@ -29,7 +29,6 @@ const slots_model_1 = require("./slots.model");
 const service_model_1 = require("../services/service.model");
 const http_status_1 = __importDefault(require("http-status"));
 const slots_utils_1 = require("./slots.utils");
-const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const slots_constants_1 = require("./slots.constants");
 const createSlotsIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = payload || {}, { service, startTime, endTime } = _a, restSlotProps = __rest(_a, ["service", "startTime", "endTime"]);
@@ -60,11 +59,14 @@ const createSlotsIntoDB = (payload) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 const getAllSlotsFromDB = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const findQuery = slots_model_1.Slot.find({
-        isBooked: slots_constants_1.BOOKING_SLOT.available,
-    }).populate("service");
-    const queryBuilder = new QueryBuilder_1.default(findQuery, query).filter();
-    const result = (yield queryBuilder.modelQuery.exec());
+    const findQuery = {};
+    if (query.date) {
+        findQuery.date = query.date;
+    }
+    if (!query.serviceId) {
+        findQuery.date = query.serviceId;
+    }
+    const result = yield slots_model_1.Slot.find({ isBooked: slots_constants_1.BOOKING_SLOT.available }).populate("service");
     return result;
 });
 exports.SlotServices = {
