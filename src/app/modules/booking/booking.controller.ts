@@ -18,6 +18,18 @@ const createBooking = catchAsync(async (req, res) => {
   });
 });
 
+
+const getBookingAccordingToCustomerEmail = catchAsync(async (req, res) => {
+  const { email } = req.user;
+  const bookings = await BookingServices.getSingleCustomerBookings(email);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User bookings retrieved successfully",
+    data: bookings,
+  });
+});
 export const BookingControllers = {
   createBooking,
+  getBookingAccordingToCustomerEmail,
 };
