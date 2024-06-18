@@ -67,8 +67,17 @@ const createBookingServiceIntoDB = async (
   }
 };
 
+const getAllBookingsFromDB = async () => {
+  const result = await Booking.find({})
+    .populate("customer")
+    .populate("service")
+    .populate("slot");
+  return result;
+};
 
-const getSingleCustomerBookings = async (loginCustomerEmail: JwtPayload) => {
+const getSingleCustomerBookingsFromDB = async (
+  loginCustomerEmail: JwtPayload
+) => {
   const customerEmail = await User.findOne(loginCustomerEmail);
   if (!customerEmail) {
     throw new AppError(httpStatus.NOT_FOUND, "Customer  is not found!");
@@ -78,5 +87,6 @@ const getSingleCustomerBookings = async (loginCustomerEmail: JwtPayload) => {
 };
 export const BookingServices = {
   createBookingServiceIntoDB,
-  getSingleCustomerBookings,
+  getAllBookingsFromDB,
+  getSingleCustomerBookingsFromDB,
 };

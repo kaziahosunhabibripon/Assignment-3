@@ -55,7 +55,7 @@ const updateSingleServicesIntoDB = (id, payload) => __awaiter(void 0, void 0, vo
     catch (error) {
         yield session.abortTransaction();
         yield session.endSession();
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, error.message);
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "error message");
     }
 });
 const deleteServiceFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
