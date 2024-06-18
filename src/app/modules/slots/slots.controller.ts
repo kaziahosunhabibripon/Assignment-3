@@ -14,10 +14,10 @@ const createSlot = catchAsync(async (req, res) => {
 });
 
 const getAllSlots = catchAsync(async (req, res) => {
-  const query = req.query;
-  const result = await SlotServices.getAllSlotsFromDB(query);
 
-  return sendResponse(
+  const result = await SlotServices.getAllSlotsFromDB(req.query);
+
+  sendResponse(
     res,
     result.length > 0
       ? {

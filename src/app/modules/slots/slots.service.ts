@@ -4,9 +4,10 @@ import { Slot } from "./slots.model";
 import { Service } from "../services/service.model";
 import httpStatus from "http-status";
 import { minutesToTime, timeToMinutes } from "./slots.utils";
-import QueryBuilder from "../../builder/QueryBuilder";
-import { BOOKING_SLOT } from "./slots.constants";
+
 import { AnyObject } from "mongoose";
+import { BOOKING_SLOT } from "./slots.constants";
+import QueryBuilder, { TSlotsQuery } from "../../builder/QueryBuilder";
 
 const createSlotsIntoDB = async (payload: TSlots) => {
   const { service, startTime, endTime, ...restSlotProps } = payload || {};
@@ -56,16 +57,21 @@ const createSlotsIntoDB = async (payload: TSlots) => {
   }
 };
 
-const getAllSlotsFromDB = async (query: Record<string, any>) => {
-  const findQuery = Slot.find({
-    isBooked: BOOKING_SLOT.available,
-  }).populate("service");
-
-  const queryBuilder = new QueryBuilder<TSlots>(findQuery, query).filter();
-  const result = (await queryBuilder.modelQuery.exec()) as TSlots[];
+const getAllSlotsFromDB = async (query: TSlotsQuery) => {
+  const findQuery: { date?: string; serviceId?: string } = {};
+  if (query.date) {
+    findQuery.date = query.date;
+  }
+  if (!query.serviceId) {
+    findQuery.date = query.serviceId;
+  }
+  const result = await Slot.find({ isBooked: BOOKING_SLOT.available }).populate(
+    "service"
+  );
 
   return result;
 };
+
 export const SlotServices = {
   createSlotsIntoDB,
   getAllSlotsFromDB,

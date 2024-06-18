@@ -1,14 +1,26 @@
 import { FilterQuery, Query } from "mongoose";
 
+export type TSlotsQuery = {
+  date?: string;
+  serviceId?: string;
+  searchTerm?: string;
+  sort?: string;
+  limit?: number;
+  page?: number;
+  fields?: string;
+};
+
 class QueryBuilder<T> {
   public modelQuery: Query<T[], T>;
-  public query: Record<string, unknown>;
-  constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
+  public query: TSlotsQuery;
+
+  constructor(modelQuery: Query<T[], T>, query: TSlotsQuery) {
     this.modelQuery = modelQuery;
     this.query = query;
   }
+
   search(searchableFields: string[]) {
-    const searchTerm = this?.query?.searchTerm;
+    const searchTerm = this.query?.searchTerm;
     if (searchTerm) {
       this.modelQuery = this.modelQuery.find({
         $or: searchableFields.map(
@@ -22,51 +34,36 @@ class QueryBuilder<T> {
 
     return this;
   }
+
   filter() {
-    const queryObj = { ...this.query };
-
-    // Filtering
-    const excludeFields = [
-      "searchTerm",
-      "sort",
-      "limit",
-      "page",
-      "fields",
-      "date",
-      "serviceId",
-    ];
-
+    const queryObj: { [key: string]: unknown } = { ...this.query };
+    const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"];
     excludeFields.forEach((el) => delete queryObj[el]);
 
-    this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
-
-    // Filter by date if provided
+    const findQuery: { date?: Date; serviceId?: string } = {};
     if (this.query.date) {
-      this.modelQuery = this.modelQuery.find({
-        date: this.query.date,
-      } as FilterQuery<T>);
+      findQuery.date = new Date(this.query.date);
     }
-
-    // Filter by serviceId if provided
     if (this.query.serviceId) {
-      this.modelQuery = this.modelQuery.find({
-        "service._id": this.query.serviceId,
-      } as FilterQuery<T>);
+      findQuery.serviceId = this.query.serviceId;
     }
 
+    this.modelQuery = this.modelQuery.find({
+      ...queryObj,
+      ...findQuery,
+    } as FilterQuery<T>);
     return this;
   }
 
   sort() {
-    const sort =
-      (this.query.sort as string)?.split(",").join(" ") || "-createdAt";
-    this.modelQuery = this.modelQuery.sort(sort);
+    const sort = this?.query?.sort?.split(",")?.join(" ") || "-createdAt";
+    this.modelQuery = this.modelQuery.sort(sort as string);
     return this;
   }
 
   paginate() {
-    const page = Number(this.query.page) || 1;
-    const limit = Number(this.query.limit) || 5;
+    const page = Number(this?.query?.page) || 1;
+    const limit = Number(this?.query?.limit) || 5;
     const skip = (page - 1) * limit;
 
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
@@ -74,8 +71,7 @@ class QueryBuilder<T> {
   }
 
   fields() {
-    const fields =
-      (this.query.fields as string)?.split(",").join(" ") || "-__v";
+    const fields = this?.query?.fields?.split(",")?.join(" ") || "-__v";
     this.modelQuery = this.modelQuery.select(fields);
     return this;
   }
