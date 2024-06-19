@@ -10,7 +10,7 @@ const handleValidationError_1 = __importDefault(require("../errors/handleValidat
 const handleCastError_1 = __importDefault(require("../errors/handleCastError"));
 const handleDuplicateError_1 = __importDefault(require("../errors/handleDuplicateError"));
 const AppError_1 = __importDefault(require("../errors/AppError"));
-const globalErrorHandlers = (error, req, res, next) => {
+const globalErrorHandlers = (error, req, res, _next) => {
     let statusCode = 500;
     let message = "Something went wrong !";
     let errorSources = [
