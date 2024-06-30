@@ -6,21 +6,32 @@ import httpStatus from "http-status";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config";
 import { User } from "../modules/user/user.model";
+
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const accessToken = req.headers.authorization;
 
     if (!accessToken) {
-      throw new AppError(httpStatus.UNAUTHORIZED, "You are not Unauthorized!");
+      throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
     }
-    // const token = accessToken.split(" ")[1];
-    const token = accessToken;
-    const decoded = jwt.verify(
-      token.replace(/^Bearer\s+/, ""),
-      config.jwt_access_token as string
-    ) as JwtPayload;
-    const { role, userEmail } = decoded;
 
+    // Ensure the Bearer prefix is present
+    const token = accessToken.split(" ")[1];
+
+    if (!token) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Token not found!");
+    }
+
+    let decoded: JwtPayload;
+    try {
+      decoded = jwt.verify(
+        token,
+        config.jwt_access_token as string
+      ) as JwtPayload;
+    } catch (error) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token!");
+    }
+    const { role, userEmail } = decoded;
     const user = await User.isUserExistByEmail(userEmail);
     if (!user) {
       throw new AppError(
@@ -28,7 +39,6 @@ const auth = (...requiredRoles: TUserRole[]) => {
         "You have no access to this route"
       );
     }
-
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,

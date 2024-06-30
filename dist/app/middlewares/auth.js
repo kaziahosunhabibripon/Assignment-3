@@ -22,11 +22,20 @@ const auth = (...requiredRoles) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         const accessToken = req.headers.authorization;
         if (!accessToken) {
-            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not Unauthorized!");
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized!");
         }
-        // const token = accessToken.split(" ")[1];
-        const token = accessToken;
-        const decoded = jsonwebtoken_1.default.verify(token.replace(/^Bearer\s+/, ""), config_1.default.jwt_access_token);
+        // Ensure the Bearer prefix is present
+        const token = accessToken.split(" ")[1];
+        if (!token) {
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "Token not found!");
+        }
+        let decoded;
+        try {
+            decoded = jsonwebtoken_1.default.verify(token, config_1.default.jwt_access_token);
+        }
+        catch (error) {
+            throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "Invalid token!");
+        }
         const { role, userEmail } = decoded;
         const user = yield user_model_1.User.isUserExistByEmail(userEmail);
         if (!user) {

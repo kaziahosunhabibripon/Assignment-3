@@ -31,11 +31,5 @@ const serviceSchema = new Schema<TService>(
   }
 );
 
-// serviceSchema.pre("save", function (next) {
-//   const service = this;
-//   if (service.isModified("name")) {
-//     service.name = service.name.toLowerCase();
-//   }
-//   next();
-// });
+
 export const Service = model<TService>("Service", serviceSchema);
