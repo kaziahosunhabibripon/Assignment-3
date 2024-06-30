@@ -52,16 +52,9 @@ const getAllBookingsFromDB = async () => {
   return result;
 };
 
-const getSingleCustomerBookingsFromDB = async (
-  loginCustomerEmail: JwtPayload
-) => {
-  const customer = await User.findOne({ email: loginCustomerEmail });
 
-  return null;
-};
 
 export const BookingServices = {
   createBookingServiceIntoDB,
   getAllBookingsFromDB,
-  getSingleCustomerBookingsFromDB,
 };

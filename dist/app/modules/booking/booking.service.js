@@ -48,12 +48,7 @@ const getAllBookingsFromDB = () => __awaiter(void 0, void 0, void 0, function* (
         .populate("slot");
     return result;
 });
-const getSingleCustomerBookingsFromDB = (loginCustomerEmail) => __awaiter(void 0, void 0, void 0, function* () {
-    const customer = yield user_model_1.User.findOne({ email: loginCustomerEmail });
-    return null;
-});
 exports.BookingServices = {
     createBookingServiceIntoDB,
     getAllBookingsFromDB,
-    getSingleCustomerBookingsFromDB,
 };

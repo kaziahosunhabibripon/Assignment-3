@@ -37,18 +37,7 @@ const getAllBookings = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
-const getBookingAccordingToCustomerEmail = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const bookings = yield booking_service_1.BookingServices.getSingleCustomerBookingsFromDB(req.user.userEmail);
-    console.log(bookings);
-    (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
-        success: true,
-        message: "User bookings retrieved successfully",
-        data: bookings,
-    });
-}));
 exports.BookingControllers = {
     createBooking,
-    getBookingAccordingToCustomerEmail,
     getAllBookings,
 };
