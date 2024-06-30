@@ -1,13 +1,12 @@
-import mongoose, { Types } from "mongoose";
-import AppError from "../../errors/AppError";
-import { Service } from "../services/service.model";
 import { Slot } from "../slots/slots.model";
 import { TBooking } from "./booking.interface";
-import httpStatus from "http-status";
-import { BOOKING_SLOT } from "../slots/slots.constants";
 import { Booking } from "./booking.model";
 import { JwtPayload } from "jsonwebtoken";
 import { User } from "../user/user.model";
+import httpStatus from "http-status";
+import AppError from "../../errors/AppError";
+import { Service } from "../services/service.model";
+import { Types } from "mongoose";
 
 const createBookingServiceIntoDB = async (
   loginCustomerEmail: JwtPayload,
@@ -16,57 +15,35 @@ const createBookingServiceIntoDB = async (
     slotId: Types.ObjectId;
   }
 ) => {
-  const { serviceId, slotId, ...restBookingData } = payload || {};
-  // get customer details from user email from user collection from const {second} =
-  const customer = await User.findOne(loginCustomerEmail);
+  const customer = await User.findOne({ loginCustomerEmail });
+
   if (!customer) {
     throw new AppError(httpStatus.NOT_FOUND, "Customer is not found!");
   }
+  const isServiceExist = await Service.findById({ _id: payload?.serviceId });
 
-  const isServiceExist = await Service.findById(serviceId);
   if (!isServiceExist) {
     throw new AppError(httpStatus.NOT_FOUND, "Service is not found!");
   }
-  const isSlotExist = await Slot.findById(slotId);
+  const isSlotExist = await Slot.findById({ _id: payload?.slotId });
   if (!isSlotExist) {
     throw new AppError(httpStatus.NOT_FOUND, "Slot is not found!");
   }
+  isSlotExist.isBooked = "booked";
+  await isSlotExist.save();
+  const booking = await Booking.create({
+    customer: customer?._id,
+    service: isServiceExist._id,
+    slot: isSlotExist._id,
+    ...payload,
+  });
 
-  const session = await mongoose.startSession();
-  try {
-    session.startTransaction();
-
-    isSlotExist.isBooked = BOOKING_SLOT.booked;
-    await isSlotExist.save({ session });
-    const booking = await Booking.create(
-      [
-        {
-          service: serviceId,
-          slot: slotId,
-          customer: customer?._id,
-          ...restBookingData,
-        },
-      ],
-      { session }
-    );
-    if (!booking?.length) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Failed to booking!");
-    }
-    await session.commitTransaction();
-
-    const result = await Booking.findById(booking[0]._id)
-      .populate("customer")
-      .populate("service")
-      .populate("slot");
-    await session.endSession();
-    return result;
-  } catch (error: any) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw new AppError(httpStatus.BAD_REQUEST, error.message);
-  }
+  const result = await Booking.findById(booking._id)
+    .populate("customer")
+    .populate("service")
+    .populate("slot");
+  return result;
 };
-
 const getAllBookingsFromDB = async () => {
   const result = await Booking.find({})
     .populate("customer")
@@ -78,13 +55,11 @@ const getAllBookingsFromDB = async () => {
 const getSingleCustomerBookingsFromDB = async (
   loginCustomerEmail: JwtPayload
 ) => {
-  const customerEmail = await User.findOne(loginCustomerEmail);
-  if (!customerEmail) {
-    throw new AppError(httpStatus.NOT_FOUND, "Customer  is not found!");
-  }
-  const result = await Booking.findOne({ customerEmail });
-  return result;
+  const customer = await User.findOne({ email: loginCustomerEmail });
+
+  return null;
 };
+
 export const BookingServices = {
   createBookingServiceIntoDB,
   getAllBookingsFromDB,

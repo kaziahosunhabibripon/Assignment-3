@@ -6,7 +6,8 @@ import { BookingServices } from "./booking.service";
 
 const createBooking = catchAsync(async (req, res) => {
   const bookingData = req.body;
-  const { email } = req.user;
+  const { email } = req.user.userEmail;
+
   const result = await BookingServices.createBookingServiceIntoDB(
     email,
     bookingData
@@ -29,8 +30,11 @@ const getAllBookings = catchAsync(async (req, res) => {
   });
 });
 const getBookingAccordingToCustomerEmail = catchAsync(async (req, res) => {
-  const { email } = req.user;
-  const bookings = await BookingServices.getSingleCustomerBookingsFromDB(email);
+  const bookings = await BookingServices.getSingleCustomerBookingsFromDB(
+    req.user.userEmail
+  );
+
+  console.log(bookings);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

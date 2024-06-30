@@ -21,3 +21,4 @@ export type TBooking = {
   manufacturingYear: number;
   registrationPlate: string;
 };
+
