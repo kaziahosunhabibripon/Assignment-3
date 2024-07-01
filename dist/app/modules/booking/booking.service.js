@@ -48,7 +48,21 @@ const getAllBookingsFromDB = () => __awaiter(void 0, void 0, void 0, function* (
         .populate("slot");
     return result;
 });
+const getMyBookings = (loginCustomerEmail) => __awaiter(void 0, void 0, void 0, function* () {
+    const customer = yield user_model_1.User.findOne({ loginCustomerEmail });
+    if (!customer) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Customer is not found!");
+    }
+    const result = yield booking_model_1.Booking.find({
+        customer: customer._id,
+    })
+        .populate("service")
+        .populate("slot")
+        .populate("customer");
+    return result;
+});
 exports.BookingServices = {
     createBookingServiceIntoDB,
     getAllBookingsFromDB,
+    getMyBookings,
 };

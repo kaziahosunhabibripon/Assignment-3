@@ -6,7 +6,7 @@ import { User } from "../user/user.model";
 import httpStatus from "http-status";
 import AppError from "../../errors/AppError";
 import { Service } from "../services/service.model";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const createBookingServiceIntoDB = async (
   loginCustomerEmail: JwtPayload,
@@ -20,6 +20,7 @@ const createBookingServiceIntoDB = async (
   if (!customer) {
     throw new AppError(httpStatus.NOT_FOUND, "Customer is not found!");
   }
+
   const isServiceExist = await Service.findById({ _id: payload?.serviceId });
 
   if (!isServiceExist) {
@@ -51,10 +52,23 @@ const getAllBookingsFromDB = async () => {
     .populate("slot");
   return result;
 };
+const getMyBookings = async (loginCustomerEmail: JwtPayload) => {
+  const customer = await User.findOne({ loginCustomerEmail });
 
+  if (!customer) {
+    throw new AppError(httpStatus.NOT_FOUND, "Customer is not found!");
+  }
+  const result = await Booking.find({
+    customer: customer._id,
+  })
+    .populate("service")
+    .populate("slot")
+    .populate("customer");
 
-
+  return result;
+};
 export const BookingServices = {
   createBookingServiceIntoDB,
   getAllBookingsFromDB,
+  getMyBookings,
 };

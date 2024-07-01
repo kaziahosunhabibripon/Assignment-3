@@ -37,7 +37,18 @@ const getAllBookings = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+const getMyBookings = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { loginCustomerEmail } = req.user.userEmail;
+    const result = yield booking_service_1.BookingServices.getMyBookings(loginCustomerEmail);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "All bookings retrieved successfully",
+        data: result,
+    });
+}));
 exports.BookingControllers = {
     createBooking,
     getAllBookings,
+    getMyBookings,
 };
