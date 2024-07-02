@@ -41,7 +41,7 @@ const loginUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const accessToken = jsonwebtoken_1.default.sign(jwtPayload, config_1.default.jwt_access_token, {
         expiresIn: config_1.default.jwt_access_expires_in,
     });
-    const token = `Bearer ${accessToken}`;
+    const token = `${accessToken}`;
     return {
         accessToken: token,
         loggedInUser,

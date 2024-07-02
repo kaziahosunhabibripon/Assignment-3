@@ -2,14 +2,10 @@ import httpStatus from "http-status";
 import catchAsync from "../utils/catchAsync";
 import sendResponse from "../utils/sendResponse";
 import { BookingServices } from "./booking.service";
-import { User } from "../user/user.model";
-import AppError from "../../errors/AppError";
-import { Booking } from "./booking.model";
 
 const createBooking = catchAsync(async (req, res) => {
   const bookingData = req.body;
   const { email } = req.user.userEmail;
-
   const result = await BookingServices.createBookingServiceIntoDB(
     email,
     bookingData
@@ -33,6 +29,7 @@ const getAllBookings = catchAsync(async (req, res) => {
 });
 const getMyBookings = catchAsync(async (req, res) => {
   const { loginCustomerEmail } = req.user.userEmail;
+
   const result = await BookingServices.getMyBookings(loginCustomerEmail);
 
   sendResponse(res, {
