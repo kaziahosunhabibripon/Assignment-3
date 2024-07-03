@@ -15,17 +15,8 @@ router.post(
   validateRequest(ServiceValidations.createServiceValidationSchema),
   ServiceControllers.creteService
 );
-router.get(
-  "/",
-  auth(USER_ROLE.admin, USER_ROLE.user),
-  ServiceControllers.getAllServices
-);
-router.get(
-  "/:id",
-  auth(USER_ROLE.admin, USER_ROLE.user),
-
-  ServiceControllers.getSingleService
-);
+router.get("/", ServiceControllers.getAllServices);
+router.get("/:id", ServiceControllers.getSingleService);
 router.put(
   "/:id",
   auth(USER_ROLE.admin),
